@@ -1,6 +1,6 @@
 variable "project" {
   type    = string
-  default = "ha-platform"
+  default = "my-platform"
 }
 variable "env" {
   type    = string
@@ -44,8 +44,9 @@ variable "container_port" {
   default = 8080
 }
 variable "ecr_repo_name" {
-  type    = string
-  default = "ha-sample-api"
+  description = "ECR repository name"
+  type        = string
+  default     = "my-sample-api"
 }
 variable "image_tag" {
   type    = string
