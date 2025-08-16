@@ -326,6 +326,14 @@ resource "aws_ecs_task_definition" "app" {
           awslogs-stream-prefix = "app"
         }
       }
+
+      environment = [
+        { name = "DB_HOST", value = "${aws_db_instance.app.address}"},
+        { name = "DB_PORT", value = "${tostring(var.db_port)}"},
+        { name = "DB_USER", value = "${var.db_username}"},
+        { name = "DB_PASSWORD", value = "${var.db_password}"},
+        { name = "DB_NAME", value = "${var.db_name}"}
+      ]
     }
   ])
 
@@ -361,3 +369,114 @@ resource "aws_ecs_service" "app" {
   tags       = var.tags
 }
 
+resource "aws_db_subnet_group" "app" {
+  name = "${var.project}-${var.env}-dbsubnet"
+  subnet_ids = [for s in aws_subnet.private : s.id]
+  tags = merge(var.tags, {
+    Name = "${var.project}-${var.env}-dbsubnet"
+  })
+}
+
+resource "aws_security_group" "db" {
+  name = "${var.project}-${var.env}-db.sg"
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    protocol = "tcp"
+    from_port = var.db_port
+    to_port = var.db_port
+    security_groups = [aws_security_group.svc.id]
+  }
+
+  egress {
+    protocol = "-1"
+    from_port = 0
+    to_port = 0
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(var.tags, {
+    Name = "${var.project}-${var.env}-db-sg"
+  })
+}
+
+resource "aws_db_instance" "app" {
+  identifier = "${var.project}-${var.env}"
+  engine = var.db_engine
+  engine_version = var.db_engine_version
+  instance_class = "db.t4g.micro"
+  allocated_storage = 20
+  max_allocated_storage = 0
+  storage_type = "gp3"
+  username = var.db_username
+  password = var.db_password
+  db_name = var.db_name
+  port = var.db_port
+
+  db_subnet_group_name = aws_db_subnet_group.app.name
+  vpc_security_group_ids = [aws_security_group.db.id]
+  publicly_accessible = false
+  multi_az = false
+
+  skip_final_snapshot = true
+  deletion_protection = false
+  backup_retention_period = 0
+  apply_immediately = true
+
+  tags = var.tags
+}
+
+resource "aws_cloudfront_distribution" "alb_front" {
+  depends_on = [ aws_lb.app ]
+  enabled = true
+  comment = "${var.project}-${var.env} via ALB"
+  price_class = "PriceClass_100"
+
+  origin {
+    domain_name = aws_lb.app.dns_name
+    origin_id = "alb-origin"
+
+    custom_origin_config {
+      origin_protocol_policy = "http-only"
+      http_port = 80
+      https_port = 443
+      origin_ssl_protocols = [ "TLSv1.2" ]
+    }
+  }
+
+  default_cache_behavior {
+    target_origin_id = "alb-origin"
+    viewer_protocol_policy = "redirect-to-https"
+
+    allowed_methods = [ "GET", "HEAD", "OPTIONS", "PUT", "POST", "PATCH", "DELETE" ]
+    cached_methods = [ "GET", "HEAD" ]
+    compress = true
+
+    min_ttl = 0
+    default_ttl = 0
+    max_ttl = 0
+
+    forwarded_values {
+      query_string = true
+      headers = [ "*" ]
+      cookies {
+        forward = "all"
+      }
+    }
+  }
+    restrictions {
+      geo_restriction { restriction_type = "none"}
+    }
+
+    viewer_certificate {
+      cloudfront_default_certificate = true
+    }
+
+    is_ipv6_enabled = true
+  
+    //logging_config {
+    //  bucket = "your-log-bucket.s3.amazonaws.com"
+    //  prefix = "cloudfront/"
+    //  include_cookies = true
+    //}
+}

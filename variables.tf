@@ -57,3 +57,41 @@ variable "tags" {
   type    = map(string)
   default = { owner = "candidate", cost-center = "portfolio", app = "ha-platform" }
 }
+
+variable "db_engine" {
+  type = string
+  default = "mysql"
+}
+
+variable "db_engine_version" {
+  type = string
+  default = "8.0.42"
+}
+
+variable "db_name" {
+  type = string
+  default = "appda"
+}
+
+variable "db_username" {
+  type = string
+}
+
+variable "db_password" {
+  type = string
+  sensitive = true
+}
+
+variable "db_port" {
+  type = number
+  default = 3306
+}
+
+//variable "domain_name" {
+//  type = string
+//}
+
+//variable "subdomain" {
+//  type = string
+//  default = "app"
+//}
