@@ -13,7 +13,7 @@
   "containerDefinitions": [
     {
       "name": "app",
-      "image": "742508967962.dkr.ecr.ap-northeast-2.amazonaws.com/my-sample-api:${{ github.sha }}",
+      "image": "PLACEHOLDER",
       "essential": true,
       "portMappings": [
         {
