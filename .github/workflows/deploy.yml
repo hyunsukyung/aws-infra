@@ -35,6 +35,6 @@ jobs:
           TD_ARN=$(jq -r '.taskDefinition.taskDefinitionArn' td.json)
           aws ecs update-service \
             --cluster $(terraform output -raw cluster_name) \
-            --service my-platform-dev-svc \
+            --service my-platform-dev-cluster \
             --task-definition "$TD_ARN" \
             --force-new-deployment
