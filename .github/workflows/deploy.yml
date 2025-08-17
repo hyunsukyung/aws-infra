@@ -30,7 +30,7 @@ jobs:
       - name : Install jq
         run : sudo apt-get update && sudo apt-get install -y jq
       - name : Render task definition
-      - run : |
+        run : |
           IMAGE="${{ steps.login-ecr.outputs.registry }}/$ECR_REPO:$IMAGE_TAG"
           cat taskdef.json | \
             jq --arg IMAGE "$IMAGE" '.containerDefinitions[0].image = $IMAGE' \
