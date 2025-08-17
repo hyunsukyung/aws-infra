@@ -13,6 +13,8 @@ jobs:
       ECR_REGISTRY: 742508967962.dkr.ecr.ap-northeast-2.amazonaws.com
       ECR_REPO: my-sample-api
       IMAGE_TAG: ${{ github.sha }}
+      CLUSTER_NAME: my-platform-dev-cluster
+      SERVICE_NAME: my-platform-dev-svc
     steps:
       - uses: actions/checkout@v4
       - uses: aws-actions/configure-aws-credentials@v4
@@ -41,7 +43,7 @@ jobs:
             --cli-input-json file://taskdef-rendered.json > td.json
           TD_ARN=$(jq -r '.taskDefinition.taskDefinitionArn' td.json)
           aws ecs update-service \
-            --cluster $(terraform output -raw cluster_name) \
-            --service my-platform-dev-cluster \
+            --cluster $CLUSTER_NAME \
+            --service $SERVICE_NAME \
             --task-definition "$TD_ARN" \
             --force-new-deployment
