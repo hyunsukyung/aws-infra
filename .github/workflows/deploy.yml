@@ -10,6 +10,7 @@ jobs:
       contents: read
     env:
       AWS_REGION: ap-northeast-2
+      ECR_REGISTRY: 742508967962.dkr.ecr.ap-northeast-2.amazonaws.com
       ECR_REPO: my-sample-api
       IMAGE_TAG: ${{ github.sha }}
     steps:
@@ -23,9 +24,9 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
       - name: Build & Push
         run: |
-          docker build -t $ECR_REPO:$IMAGE_TAG ./demo_nginx
-          docker tag $ECR_REPO:$IMAGE_TAG ${{ steps.login-ecr.outputs.registry }}/$ECR_REPO:$IMAGE_TAG
-          docker push ${{ steps.login-ecr.outputs.registry }}/$ECR_REPO:$IMAGE_TAG
+          IMAGE=$ECR_REGISTRY/$ECR_REPO:$IMAGE_TAG
+          docker build -t $IMAGE ./demo_nginx
+          docker push $IMAGE
       - name : Install jq
         run : sudo apt-get update && sudo apt-get install -y jq
       - name: Update task definition (image tag)
