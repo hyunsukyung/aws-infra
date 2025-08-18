@@ -480,3 +480,59 @@ resource "aws_cloudfront_distribution" "alb_front" {
     //  include_cookies = true
     //}
 }
+
+resource "aws_appautoscaling_target" "ecs" {
+   max_capacity = 4 
+   min_capacity = 1
+   resource_id = "service/${aws_ecs_cluster.this.name}/${aws_ecs_service.app.name}" 
+   scalable_dimension = "ecs:service:DesiredCount" 
+   service_namespace = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "cpu50" { 
+  name = "${var.project}-${var.env}-cpu50" 
+  policy_type = "TargerTrackingScaling" 
+  resource_id = aws_appautoscaling_target.ecs.resource_id 
+  scalable_dimension = aws_appautoscaling_target.ecs.scalable_dimension 
+  service_namespace = aws_appautoscaling_target.ecs.service_namespace
+
+  target_tracking_scaling_policy_configuration { 
+    target_value = 50 
+    predefined_metric_specification { 
+      predefined_metric_type = "ECSServiceAverageCPUUtilization" 
+    } 
+    scale_in_cooldown = 60 
+    scale_out_cooldown = 60 
+    } 
+}
+
+resource "aws_sns_topic" "alerts" { name = "${var.project}-${var.env}-alerts" }
+
+resource "aws_cloudwatch_metric_alarm" "alb_5xx" {
+  alarm_name = "${var.project}-${var.env}-alb-5xx"
+  namespace = "AWS/ApplicationELB"
+  metric_name = "HTTPCode_Target_5XX_Count"
+  dimensions = { LoadBalancer = aws_lb.app.arn_suffix }
+  statistic  = "Sum"
+  period = 60
+  evaluation_periods = 1
+  threshold = 5
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  alarm_actions = [aws_sns_topic.alerts.arn]
+}
+
+resource "aws_cloudwatch_metric_alarm" "ecs_cpu80" {
+  alarm_name = "${var.project}-${var.env}-ecs-cpu80"
+  namespace  = "AWS/ECS"
+  metric_name = "CPUUtilization"
+  dimensions = {
+    ClusterName = aws_ecs_cluster.this.name
+    ServiceName = aws_ecs_service.app.name
+  }
+  statistic = "Average"
+  period = 60
+  evaluation_periods = 3
+  threshold = 80
+  comparison_operator = "GreaterThanThreshold"
+  alarm_actions = [aws_sns_topic.alerts.arn]
+}
