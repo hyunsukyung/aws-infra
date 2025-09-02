@@ -44,15 +44,16 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build & Push :latest
+        env:
+          YOURLS_VERSION: "1.9.3"   # 필요시 변경
         run: |
           set -euo pipefail
           IMAGE="${ECR_REGISTRY}/${ECR_REPO}:latest"
-          # YOURLS_VERSION이 비어 있어도 기본값(1.9.3)로 안전하게
           YV="${YOURLS_VERSION:-1.9.3}"
-          echo "Building $IMAGE from ${BUILD_CONTEXT} (YOURLS_VERSION=$YV)"
+          echo "Building $IMAGE (YOURLS_VERSION=$YV) from ${BUILD_CONTEXT:-./yourls}"
           docker build --pull \
             --build-arg YOURLS_VERSION="$YV" \
-            -t "$IMAGE" "$BUILD_CONTEXT"
+            -t "$IMAGE" "${BUILD_CONTEXT:-./yourls}"
           docker push "$IMAGE"
 
       - name: Rolling update 3 services

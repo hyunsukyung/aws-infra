@@ -1,10 +1,21 @@
-# YOURLS 앱 코드가 포함된 공식 fpm-alpine 이미지 사용
-FROM yourls:1.9.3-fpm-alpine
+FROM php:8.2-fpm-alpine
 
-# nginx만 추가해서 php-fpm + nginx 단일 컨테이너 패턴 유지
-RUN apk add --no-cache nginx bash tzdata ca-certificates
+# 원하는 YOURLS 버전 (필요시 변경)
+ARG YOURLS_VERSION=1.9.3
+ENV YOURLS_VERSION=${YOURLS_VERSION}
 
-# 너의 기존 설정/엔트리포인트 그대로
+# 필수 패키지 + PHP 확장
+RUN apk add --no-cache nginx git curl tzdata ca-certificates bash tar gzip \
+    && docker-php-ext-install mysqli
+
+# YOURLS 소스 코드: 태그 체크아웃 (tar.gz 대신 git clone → 안정적)
+RUN set -eux; \
+    rm -rf /var/www/html && mkdir -p /var/www/html; \
+    git clone --depth 1 --branch "${YOURLS_VERSION}" \
+      https://github.com/YOURLS/YOURLS.git /var/www/html; \
+    rm -rf /var/www/html/.git
+
+# 너의 기존 파일들
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /entrypoint.sh
 
