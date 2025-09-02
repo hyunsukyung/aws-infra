@@ -45,17 +45,12 @@ jobs:
 
       - name: Build & Push :latest
         env:
-          YOURLS_VERSION: "1.9.3"   # 필요시 변경
+          BUILD_CONTEXT: ./yourls
         run: |
           set -euo pipefail
           IMAGE="${ECR_REGISTRY}/${ECR_REPO}:latest"
-          YV="${YOURLS_VERSION:-1.9.3}"
-          echo "Building $IMAGE (YOURLS_VERSION=$YV) from ${BUILD_CONTEXT:-./yourls}"
-          docker build --pull \
-            --build-arg YOURLS_VERSION="$YV" \
-            -t "$IMAGE" "${BUILD_CONTEXT:-./yourls}"
+          echo "Building $IMAGE from ${BUILD_CONTEXT}"
           docker push "$IMAGE"
-
       - name: Rolling update 3 services
         run: |
           set -euo pipefail
