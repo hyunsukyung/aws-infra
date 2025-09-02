@@ -1,23 +1,10 @@
-FROM php:8.2-fpm-alpine
+# YOURLS 앱 코드가 포함된 공식 fpm-alpine 이미지 사용
+FROM yourls:1.9.3-fpm-alpine
 
-# 빌드 인자 + 환경변수로 승격(셸에서 확실히 보이게)
-ARG YOURLS_VERSION=1.9.3
-ENV YOURLS_VERSION=${YOURLS_VERSION}
+# nginx만 추가해서 php-fpm + nginx 단일 컨테이너 패턴 유지
+RUN apk add --no-cache nginx bash tzdata ca-certificates
 
-# 필수 도구 설치 (tar/gzip 포함) + PHP 확장
-RUN apk add --no-cache nginx curl tzdata ca-certificates bash tar gzip \
-    && docker-php-ext-install mysqli
-
-# YOURLS 다운로드: codeload + 재시도 + 파일로 저장 (파이프 X)
-RUN set -eux; \
-    mkdir -p /var/www/html; \
-    echo "Fetching YOURLS ${YOURLS_VERSION} ..."; \
-    curl -fL --retry 5 --retry-connrefused --connect-timeout 10 \
-      -o /tmp/yourls.tar.gz \
-      "https://codeload.github.com/YOURLS/YOURLS/tar.gz/refs/tags/${YOURLS_VERSION}"; \
-    tar -xzf /tmp/yourls.tar.gz -C /var/www/html --strip 1; \
-    rm -f /tmp/yourls.tar.gz
-
+# 너의 기존 설정/엔트리포인트 그대로
 COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /entrypoint.sh
 
