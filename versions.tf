@@ -5,4 +5,10 @@ terraform {
     random = { source = "hashicorp/random", version = "~> 3.6" }
   }
 }
-provider "aws" { region = var.region }
+provider "aws" {
+  region = var.region
+}
+provider "aws" {
+  alias  = "us_east_1"
+  region = "us-east-1"
+}

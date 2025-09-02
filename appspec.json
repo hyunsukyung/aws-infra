@@ -1,0 +1,19 @@
+{
+    "version": 1,
+    "Resources": [
+        {
+            "TargetService": {
+                "Type": "AWS::ECS::Service",
+                "Properties": {
+                    "TaskDefinition": "<REPLACE_WITH_TD_ARN>",
+                    "LoadBalancerInfo": {
+                        "ContainerName": "app",
+                        "ContainerPort": 8080
+                    },
+                    "PlatformVersion":"LATEST"
+                }
+            }
+        }
+    ],
+    "Hooks": []
+}

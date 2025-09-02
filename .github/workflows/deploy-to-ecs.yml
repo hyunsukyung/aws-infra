@@ -1,0 +1,55 @@
+name: deploy-to-ecs
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-push-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    env:
+      AWS_REGION: ap-northeast-2
+      ECR_REGISTRY: 742508967962.dkr.ecr.ap-northeast-2.amazonaws.com
+      ECR_REPO: my-sample-api
+
+      CLUSTER_NAME: my-platform-dev-cluster
+      SVC_APP:   my-platform-dev-svc
+      SVC_API:   my-platform-dev-svc-api
+      SVC_ADMIN: my-platform-dev-svc-admin
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: arn:aws:iam::742508967962:role/GHA_OIDC_ROLE
+
+      - name: Login to ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build & Push :latest
+        run: |
+          set -e
+          IMAGE="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:latest"
+          docker build --pull -t "$IMAGE" ./yourls
+          docker push "$IMAGE"
+
+      - name: Rolling update 3 services
+        run: |
+          set -e
+          for SVC in "${{ env.SVC_APP }}" "${{ env.SVC_API }}" "${{ env.SVC_ADMIN }}"; do
+            echo "Forcing new deployment: $SVC"
+            aws ecs update-service \
+              --cluster "${{ env.CLUSTER_NAME }}" \
+              --service "$SVC" \
+              --force-new-deployment
+          done
+          echo "Waiting for services to stabilize..."
+          aws ecs wait services-stable \
+            --cluster "${{ env.CLUSTER_NAME }}" \
+            --services "${{ env.SVC_APP }}" "${{ env.SVC_API }}" "${{ env.SVC_ADMIN }}"
+          echo "All services are stable."
