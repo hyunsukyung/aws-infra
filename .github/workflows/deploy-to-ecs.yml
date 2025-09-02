@@ -3,7 +3,7 @@ name: deploy-to-ecs
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: {}   # 수동 실행도 가능
+  workflow_dispatch: {}
 
 concurrency:
   group: deploy-to-ecs-${{ github.ref }}
@@ -20,11 +20,9 @@ jobs:
       AWS_REGION: ap-northeast-2
       ECR_REGISTRY: 742508967962.dkr.ecr.ap-northeast-2.amazonaws.com
       ECR_REPO: my-sample-api
-      # Dockerfile 있는 디렉터리로 바꿔주세요. (예: ./yourls)
-      BUILD_CONTEXT: ./yourls
 
-      # YOURLS 버전: Dockerfile ARG로 전달됨
-      YOURLS_VERSION: "1.9.3"
+      # Dockerfile 위치 (너의 리포 구조에 맞추세요)
+      BUILD_CONTEXT: ./yourls
 
       CLUSTER_NAME: my-platform-dev-cluster
       SVC_APP:   my-platform-dev-svc
@@ -44,13 +42,18 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v2
 
       - name: Build & Push :latest
-        env:
-          BUILD_CONTEXT: ./yourls
         run: |
           set -euo pipefail
           IMAGE="${ECR_REGISTRY}/${ECR_REPO}:latest"
           echo "Building $IMAGE from ${BUILD_CONTEXT}"
+          # Dockerfile 유효성 확인
+          test -f "${BUILD_CONTEXT}/Dockerfile" || { echo "Dockerfile not found in ${BUILD_CONTEXT}"; exit 1; }
+          docker version
+          docker build --pull -t "$IMAGE" "$BUILD_CONTEXT"
+          # 로컬 태그 존재 확인 (이전 에러 방지)
+          docker image inspect "$IMAGE" >/dev/null
           docker push "$IMAGE"
+
       - name: Rolling update 3 services
         run: |
           set -euo pipefail
