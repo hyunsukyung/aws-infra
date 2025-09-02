@@ -33,11 +33,10 @@ jobs:
 
       - name: Build & Push :latest
         run: |
-          set -e
-          IMAGE="${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:latest"
-          docker build --pull -t "$IMAGE" ./yourls
+          set -euo pipefail
+          IMAGE="${ECR_REGISTRY}/${ECR_REPO}:latest"
+          docker build --pull --build-arg YOURLS_VERSION="${YOURLS_VERSION}" -t "$IMAGE" "${BUILD_CONTEXT}" 
           docker push "$IMAGE"
-
       - name: Rolling update 3 services
         run: |
           set -e
