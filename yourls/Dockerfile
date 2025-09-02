@@ -7,7 +7,7 @@ RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
 
 WORKDIR /var/www/html
 
-RUN curl -fsSL https://hithub.com/YOURLS/YOURLS/archive/refs/tags/1.9.3.tar.gz \
+RUN curl -fsSL https://github.com/YOURLS/YOURLS/archive/refs/tags/1.9.3.tar.gz \
 | tar -xz --strip 1 -C /var/www/html
 
 COPY nginx.conf /ect/nginx/conf.d/default.conf
