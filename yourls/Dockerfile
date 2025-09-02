@@ -1,18 +1,20 @@
 FROM php:8.2-fpm-alpine
 
-RUN apk add --no-cache nginx curl tar tzdata
+ARG YOURLS_VERSION=1.9.3
 
-RUN docker-php-ext-install mysqli && docker-php-ext-enable mysqli
+RUN apk add --no-cache nginx curl tzdata ca-certificates bash tar gzip \
+    && docker-php-ext-install mysqli
 
+RUN set -eux; \
+    mkdir -p /var/www/html; \
+    curl -fL --retry 5 --retry-connrefused --connect-timeout 10 \
+      -o /tmp/yourls.tar.gz \
+      "https://codeload.github.com/YOURLS/YOURLS/tar.gz/refs/tags/${YOURLS_VERSION}"; \
+    tar -xzf /tmp/yourls.tar.gz -C /var/www/html --strip 1; \
+    rm -f /tmp/yourls.tar.gz
 
-WORKDIR /var/www/html
-
-RUN curl -fsSL https://github.com/YOURLS/YOURLS/archive/refs/tags/1.9.3.tar.gz \
-| tar -xz --strip 1 -C /var/www/html
-
-COPY nginx.conf /ect/nginx/conf.d/default.conf
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh && mkdir -p /run/nginx
 
 EXPOSE 8080
-CMD [ "/bin/sh", "-c", "/entrypoint.sh && php-fpm -D && nginx -g 'daemon off;'"  ]
+CMD ["/bin/sh","-c","/entrypoint.sh && php-fpm -D && nginx -g 'daemon off;'"]
