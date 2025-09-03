@@ -1,7 +1,7 @@
 # ---------- builder: YOURLS 소스 ----------
 FROM alpine:3.19 AS builder
 
-ARG YOURLS_VERSION=1.9.2
+ARG YOURLS_VERSION=1.10.2
 ENV YOURLS_VERSION=${YOURLS_VERSION}
 
 RUN apk add --no-cache git ca-certificates \
