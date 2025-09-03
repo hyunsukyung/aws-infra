@@ -12,7 +12,7 @@ RUN apk add --no-cache git ca-certificates \
 FROM php:8.2-fpm-alpine
 
 RUN apk add --no-cache nginx bash tzdata ca-certificates \
- && docker-php-ext-install mysqli
+ && docker-php-ext-install mysqli pdo_mysql
 
 WORKDIR /var/www/html
 COPY --from=builder /src /var/www/html
