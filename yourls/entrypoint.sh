@@ -19,36 +19,34 @@ if [ ! -f "$CONF_FILE" ]; then
   echo "[entrypoint] generating config.php"
   COOKIEKEY=$(head -c 64 /dev/urandom | od -An -vtx1 | tr -d ' \n')
 
+  # ★ 싱글쿼트 heredoc을 쓰면 $ 가 쉘에서 확장되지 않으므로
+  #   PHP 변수는 그대로 적고, 쉘 변수(쿠키키)만 나중에 치환합니다.
   cat > "$CONF_FILE" <<'PHP'
 <?php
-// DB
 define( 'YOURLS_DB_USER', getenv('DB_USER') );
 define( 'YOURLS_DB_PASS', getenv('DB_PASSWORD') );
 define( 'YOURLS_DB_NAME', getenv('DB_NAME') );
 define( 'YOURLS_DB_HOST', getenv('DB_HOST') );
 define( 'YOURLS_DB_PREFIX', 'yourls_' );
 
-// 사이트 URL
 define( 'YOURLS_SITE', getenv('YOURLS_SITE') );
-
-// 타임존/언어 등
 define( 'YOURLS_HOURS_OFFSET', 0 );
 define( 'YOURLS_LANG', '' );
 define( 'YOURLS_UNIQUE_URLS', true );
 
-// 사용자/비밀번호 (표준 방식)
-\$yourls_user_passwords = [
+$yourls_user_passwords = [
   getenv('YOURLS_USER') => getenv('YOURLS_PASS'),
 ];
 
-// HTTPS(프록시 뒤) 처리
-if (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
-  \$_SERVER['HTTPS'] = 'on';
+if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+  $_SERVER['HTTPS'] = 'on';
 }
 
-// 쿠키 키
-define( 'YOURLS_COOKIEKEY', getenv('YOURLS_COOKIEKEY') ?: '${COOKIEKEY}' );
+define( 'YOURLS_COOKIEKEY', '__COOKIEKEY_PLACEHOLDER__' );
 PHP
+
+  # __COOKIEKEY_PLACEHOLDER__ 를 실제 난수로 치환
+  sed -i "s/__COOKIEKEY_PLACEHOLDER__/$COOKIEKEY/" "$CONF_FILE"
 
   chown -R www-data:www-data "$CONF_DIR"
 fi
