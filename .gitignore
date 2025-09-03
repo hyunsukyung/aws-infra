@@ -5,3 +5,5 @@ crash.log
 *.pem
 *.key
 .env
+*.tfvars
+dev.tfvars

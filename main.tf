@@ -221,11 +221,12 @@ resource "aws_lb" "app" {
 }
 
 resource "aws_lb_target_group" "app" {
-  name        = "${var.project}-${var.env}-tg"
-  port        = 8080
-  protocol    = "HTTP"
-  target_type = "ip"
-  vpc_id      = aws_vpc.main.id
+  name                 = "${var.project}-${var.env}-tg"
+  port                 = 8080
+  protocol             = "HTTP"
+  target_type          = "ip"
+  vpc_id               = aws_vpc.main.id
+  deregistration_delay = 30
 
   health_check {
     path                = "/healthz"
@@ -242,11 +243,12 @@ resource "aws_lb_target_group" "app" {
 }
 
 resource "aws_lb_target_group" "api" {
-  name        = "${var.project}-${var.env}-tg-api"
-  port        = 8080
-  protocol    = "HTTP"
-  target_type = "ip"
-  vpc_id      = aws_vpc.main.id
+  name                 = "${var.project}-${var.env}-tg-api"
+  port                 = 8080
+  protocol             = "HTTP"
+  target_type          = "ip"
+  vpc_id               = aws_vpc.main.id
+  deregistration_delay = 30
 
   health_check {
     path                = "/healthz"
@@ -263,11 +265,12 @@ resource "aws_lb_target_group" "api" {
 }
 
 resource "aws_lb_target_group" "admin" {
-  name        = "${var.project}-${var.env}-tg-admin"
-  port        = 8080
-  protocol    = "HTTP"
-  target_type = "ip"
-  vpc_id      = aws_vpc.main.id
+  name                 = "${var.project}-${var.env}-tg-admin"
+  port                 = 8080
+  protocol             = "HTTP"
+  target_type          = "ip"
+  vpc_id               = aws_vpc.main.id
+  deregistration_delay = 30
 
   health_check {
     path                = "/healthz"
@@ -347,7 +350,7 @@ resource "aws_ecr_repository" "app" {
   image_scanning_configuration {
     scan_on_push = true
   }
-
+  force_delete = true
   tags = {
     Name        = "${var.project}-ecr"
     Environment = var.env
@@ -446,13 +449,13 @@ resource "aws_ecs_task_definition" "app" {
         { name = "DB_NAME", value = "${var.db_name}" },
 
         { name = "YOURLS_SITE", value = "http://${aws_lb.app.dns_name}" },
-        { name = "YOURLS_USER", value = "admin" }
+        { name = "YOURLS_USER", value = "admin" },
+        { name = "YOURLS_PASS", value = var.yourls_admin_pass }
       ], [])
 
       secrets = concat([
         { name = "DB_USER", valueFrom = "${aws_secretsmanager_secret.db.arn}:username::" },
-        { name = "DB_PASSWORD", valueFrom = "${aws_secretsmanager_secret.db.arn}:password::" },
-        { name = "YOURLS_PASS", valueFrom = "${aws_secretsmanager_secret.yourls_admin.arn}:password::" }
+        { name = "DB_PASSWORD", valueFrom = "${aws_secretsmanager_secret.db.arn}:password::" }
       ], [])
     }
   ])
@@ -502,7 +505,7 @@ resource "aws_ecs_service" "app" {
 }
 
 resource "aws_ecs_service" "app_green" {
-  name            = "${var.project}-${var.env}-evs-app-green"
+  name            = "${var.project}-${var.env}-svc-app-green"
   cluster         = aws_ecs_cluster.this.id
   task_definition = aws_ecs_task_definition.app.arn
   desired_count   = 0
@@ -684,9 +687,11 @@ resource "aws_iam_role_policy" "exec_secrets" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect   = "Allow",
-        Action   = ["secretsmanager:GetSecretValue"],
-        Resource = [aws_secretsmanager_secret.db.arn]
+        Effect = "Allow",
+        Action = ["secretsmanager:GetSecretValue"],
+        Resource = [
+          aws_secretsmanager_secret.db.arn
+        ]
       }
     ]
   })
@@ -701,17 +706,6 @@ resource "aws_secretsmanager_secret_version" "db" {
   secret_string = jsonencode({
     username = var.db_username
     password = var.db_password
-  })
-}
-
-resource "aws_secretsmanager_secret" "yourls_admin" {
-  name = "${var.project}-${var.env}-yourls-admin"
-}
-
-resource "aws_secretsmanager_secret_version" "yourls_admin" {
-  secret_id = aws_secretsmanager_secret.yourls_admin.id
-  secret_string = jsonencode({
-    password = var.yourls_admin_pass
   })
 }
 
@@ -1111,7 +1105,7 @@ resource "aws_cloudwatch_metric_alarm" "tg_unhealthy" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "ecs_task_missing" {
-  alarm_name          = "${var.project}-${var.env}-ecs-tasks-misiing}"
+  alarm_name          = "${var.project}-${var.env}-ecs-tasks-missing}"
   comparison_operator = "GreaterThanThreshold"
   threshold           = 0
   evaluation_periods  = var.ecs_tasks_missing_periods
