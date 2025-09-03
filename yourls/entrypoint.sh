@@ -45,6 +45,11 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
 define( 'YOURLS_COOKIEKEY', '__COOKIEKEY_PLACEHOLDER__' );
 PHP
 
+$yourls_reserved_URL = array(
+  'yourls','api','admin','login','logout','register','install','upgrade',
+  'css','js','images','favicon','robots.txt','u','index.php'
+);
+
   # __COOKIEKEY_PLACEHOLDER__ 를 실제 난수로 치환
   sed -i "s/__COOKIEKEY_PLACEHOLDER__/$COOKIEKEY/" "$CONF_FILE"
 
