@@ -21,7 +21,6 @@ jobs:
       ECR_REGISTRY: 742508967962.dkr.ecr.ap-northeast-2.amazonaws.com
       ECR_REPO: my-sample-api
 
-      # Dockerfile 위치 (너의 리포 구조에 맞추세요)
       BUILD_CONTEXT: ./yourls
 
       CLUSTER_NAME: my-platform-dev-cluster

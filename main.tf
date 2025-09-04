@@ -609,6 +609,7 @@ resource "aws_ecs_service" "admin" {
 resource "aws_db_subnet_group" "app" {
   name       = "${var.project}-${var.env}-dbsubnet"
   subnet_ids = [for s in aws_subnet.private : s.id]
+
   tags = merge(var.tags, {
     Name = "${var.project}-${var.env}-dbsubnet"
   })
@@ -699,6 +700,8 @@ resource "aws_iam_role_policy" "exec_secrets" {
 
 resource "aws_secretsmanager_secret" "db" {
   name = "${var.project}-${var.env}-db"
+
+  recovery_window_in_days = 0
 }
 
 resource "aws_secretsmanager_secret_version" "db" {

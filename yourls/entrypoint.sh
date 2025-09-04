@@ -19,8 +19,6 @@ if [ ! -f "$CONF_FILE" ]; then
   echo "[entrypoint] generating config.php"
   COOKIEKEY=$(head -c 64 /dev/urandom | od -An -vtx1 | tr -d ' \n')
 
-  # ★ 싱글쿼트 heredoc을 쓰면 $ 가 쉘에서 확장되지 않으므로
-  #   PHP 변수는 그대로 적고, 쉘 변수(쿠키키)만 나중에 치환합니다.
   cat > "$CONF_FILE" <<'PHP'
 <?php
 define( 'YOURLS_DB_USER', getenv('DB_USER') );
@@ -50,7 +48,6 @@ if (isset($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROT
 define( 'YOURLS_COOKIEKEY', '__COOKIEKEY_PLACEHOLDER__' );
 PHP
 
-  # __COOKIEKEY_PLACEHOLDER__ 를 실제 난수로 치환
   sed -i "s/__COOKIEKEY_PLACEHOLDER__/$COOKIEKEY/" "$CONF_FILE"
 
   chown -R www-data:www-data "$CONF_DIR"
