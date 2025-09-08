@@ -14,8 +14,7 @@ Terraform으로 **VPC + ALB + ECS(Fargate) + RDS(MySQL) + CloudFront + VPCE**를
 
 
 > 🔍 **본 레포는 “데모 전용”입니다.** 인프라는 상시 구동하지 않으며, 모든 증빙은 **Docs**에서 확인합니다.  
-https://docs.google.com/document/d/1xev0STyyOjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#heading=h.epcfztywsej0
-
+https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?usp=sharing
 ---
 
 ## 🔎 What’s Inside
