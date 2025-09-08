@@ -69,18 +69,20 @@ jobs:
             --services "${SVC_APP}" "${SVC_API}" "${SVC_ADMIN}"
           echo "All services are stable."
 
-      - name: Prove OIDC assume-role
+      - name: Prove OIDC (minimal)
         run: |
           echo "== Caller identity =="
           aws sts get-caller-identity
 
           echo "== Short creds shape =="
-          echo "AWS_ACCESS_KEY_ID prefix: ${AWS_ACCESS_KEY_ID:0:4}"   # ASIA 이어야 함
-          test -n "${AWS_SESSION_TOKEN}" && echo "SESSION_TOKEN: present" || echo "SESSION_TOKEN: MISSING"
+          echo "AWS_ACCESS_KEY_ID prefix: ${AWS_ACCESS_KEY_ID:0:4}"   # 기대: ASIA
+          if [ -n "${AWS_SESSION_TOKEN}" ]; then echo "SESSION_TOKEN: present"; else echo "SESSION_TOKEN: missing"; fi
 
           echo "== Where creds come from =="
           aws configure list
 
-          echo "== Role trust (federated OIDC) =="
-          aws iam get-role --role-name GHA_OIDC_ROLE \
-            --query 'Role.AssumeRolePolicyDocument.Statement[0].Principal' --output json
+          echo "== Guard: ensure assumed-role =="
+          ARN=$(aws sts get-caller-identity --query Arn --output text)
+          echo "ARN: $ARN"
+          [[ "$ARN" == arn:aws:sts::*:assumed-role/* ]] || (echo "Not an assumed-role; failing" && exit 1)
+
