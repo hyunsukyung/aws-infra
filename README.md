@@ -77,17 +77,19 @@ terraform plan -var-file="dev.tfvars" -out=tfplan # 계획만 확인(비용 無)
 📄 ./docs/README.md
  · 🔗 https://yourname.github.io/my-platform
 ## ✅ Demo / Verification Checklist
-- [헬스체크 200 OK](./docs/results.md#proof-healthcheck)
-- [ECS 서비스 안정화(3개 서비스 정상)](./docs/results.md#proof-ecs-stable)
-- [ALB Target Groups & Target Health](./docs/results.md#proof-tg-health)
-- [Blue/Green 가중치(트래픽 분할)](./docs/results.md#proof-bluegreen-weights)
-- [CloudWatch Logs (그룹 & tail)](./docs/results.md#proof-logs-tail)
-- [RDS(MySQL) 설정 검증](./docs/results.md#proof-rds)
-- [VPC 엔드포인트(S3/CloudWatch)](./docs/results.md#proof-vpce)
-- [ECR 이미지 & Lifecycle](./docs/results.md#proof-ecr-lifecycle)
-- [CloudWatch Alarms 요약](./docs/results.md#proof-alarms)
-- [ECS 오토스케일(TargetTracking)](./docs/results.md#proof-autoscaling)
-- [Cost 가드레일 – AWS Budgets](./docs/results.md#proof-budgets)
+## ✅ Demo / Verification Checklist
+- [헬스체크 200 OK](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.wvb9282fcdnh)
+- [ECS 서비스 안정화(3개 서비스 정상)](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.aofduuee2joy)
+- [ALB Target Groups & Target Health](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.r9if9ikv8q4c)
+- [Blue/Green 가중치(트래픽 분할)](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.mlv5k175b3ap)
+- [CloudWatch Logs (그룹 & tail)](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.119iznubupsy)
+- [RDS(MySQL) 설정 검증](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.kekxiht9og3e)
+- [VPC 엔드포인트(S3/CloudWatch)](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.kp6ls9yuf0zv)
+- [ECR 이미지 & Lifecycle](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.fo5j95hc1j7t)
+- [CloudWatch Alarms 요약](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.a2iq127hz5ss)
+- [ECS 오토스케일(TargetTracking)](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.3serp0yqauu0)
+- [Cost 가드레일 – AWS Budgets](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.sli3ujyoa4ar)
+
 
 
 
