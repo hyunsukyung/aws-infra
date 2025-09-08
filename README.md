@@ -14,7 +14,7 @@ Terraform으로 **VPC + ALB + ECS(Fargate) + RDS(MySQL) + CloudFront + VPCE**를
 
 
 > 🔍 **본 레포는 “데모 전용”입니다.** 인프라는 상시 구동하지 않으며, 모든 증빙은 **Docs**에서 확인합니다.  
-> **Docs:** [./docs/README.md](./docs/README.md)
+https://docs.google.com/document/d/1xev0STyyOjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#heading=h.epcfztywsej0
 
 ---
 
@@ -86,8 +86,10 @@ terraform plan -var-file="dev.tfvars" -out=tfplan # 계획만 확인(비용 無)
 - [VPC 엔드포인트(S3/CloudWatch)](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.kp6ls9yuf0zv)
 - [ECR 이미지 & Lifecycle](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.fo5j95hc1j7t)
 - [CloudWatch Alarms 요약](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.a2iq127hz5ss)
+- [GitHub Actions OIDC](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.rvyngabau92y)
 - [ECS 오토스케일(TargetTracking)](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.3serp0yqauu0)
 - [Cost 가드레일 – AWS Budgets](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.sli3ujyoa4ar)
+- [YOURLS Admin 접속 및 단축 URL 생성 성공](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.fhfeoqxxa2re)
 
 ## 🛠️ Operations (Runbook Lite)
 
