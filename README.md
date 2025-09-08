@@ -1,67 +1,105 @@
-## 프로젝트 명
-AWS 기반 고가용성 웹 서비스 아키텍처 설계
-## 프로젝트 소개
-Terraform으로 ECS Fargate + ALB + RDS(MySQL) + CloudFront + VPC(public/private)을 구성하고, 컨테이너화한 YOURLS(단축 URL 서비스)를 배포하는 개인 프로젝트입니다.
-## 아키텍처 상세
+## 🧭 YOURLS on AWS Fargate
 
-## 트래픽 흐름
+Terraform으로 **VPC + ALB + ECS(Fargate) + RDS(MySQL) + CloudFront + VPCE**를 구축하고, 컨테이너화한 **YOURLS**(단축 URL 서비스)를 고가용성·무중단 배포 아키텍처로 구현한 포트폴리오
 
-## 설계 하이라이트 
-네트워크 & 인프라
-- vpc: /16, 3AZ, public/private 서브넷
-- NAT 전략: nat_strategy = "single" | "per_az" (개발/운영 모드 선택)
-- 라우팅: public RT -> IGW, private RT -> NATGW (또는 AZ별)
-- vpc Endpoint
-  - s3 gateway: private에서 s3 접근 시 NAT 우회
-  - CloudWatch Logs(Interface): 로그 전송 내부화, SG로 443만 허용
-- 보안 그룹
-  - ALB SG: 0.0.0.0/0 :80 인바운드
-  - Service SG: from ALB SG :8080만
-  - DB SG: from Service SG :3306만
-***
-애플리케이션 & 데이터
-- ECS(Fargate): app/api/admin 3개 서비스, awsvpc 네트워킹
-- 컨테이너: Nginx + PHP-FPM + YOURLS
-  - 헬스체크: /healthz
-  - YOURLS: / 및 /api, /admin 경로
-- RDS MySQL
-  - 클래스 db.t4g.micro, private서브넷, 파라미터 그룹으로 UTF8MB4 설정
-  - 백업/PI/모니터링은 변수로 토글
-***
-보안 & 시크릿 
-- IAM: ECS Task Execution Role / Task Role 분리
-- Secrets Manager: DB username/password를 시크릿으로 저장 -> ECS Task Definition에서 주입
-- S3 OAI: CloudFront만 정적 버킷에 접근
-- ECR: 이미지 스캐닝 on, Lifecycle로 미사용/오래된 이미지 정리
-- RDS: 삭제 보호/스냅샷/멀티AZ는 환경에 따라 변수로 제어
-***
-관찰성 & 자동조정
-- 로그: /ecs/<project>-<env> CloudWatch Logs(서비스 당 로그 그룹)
-- 알람(CloudWatch Alarms)
-  - ALB 5xx, Target UnHealthy, ECS CPU 80%, Tasks Missing, RDS CPU High, Free Storage Low
-- 오토스케일(TargetTracking, app서비스)
-  - ECSServiceAverageCPUUtilization = 50
-  - ECSServiceAverageMemoryUtilization = 65
-  - ALBRequestCountPerTarget = 100
-- 비용 가드레일: Budgets 월 $20, 80%(예측)/100%(실제) 이메일 알림
-***
-컨테이너/이미지 & 배포
-- Dockerfile: Nginx + PHP-FPM + YOURLS, entrypoint가 config.php 생성/부트
-- ECR: <account>.dkr.ecr.<region>.amazonaws.com/<repo>:latest
-- GitHub Actions (OIDC)
-  - Role Assume -> ECR 로그인
-  - Build & Push :latest
-  - ecs update-service --force-new-deployment (app/api/admin)
-  - services-stable 대기
-- Blue/Green: ALB Listener의 forward 가중치로 점진 전환(stickness off)
-***
-비용/가용성 설계 포인트
-- dev: NAT single, RDS 단일 AZ, CloudFront PriceClass_100, ECR lifecycle로 이미지 비용 관리, VPCE로 NAT 데이터 처리 비용 절감, Budgets로 상한 모니터링
-- 가용성
+---
 
-## 빠른 시작
+**핵심 데모 포인트**
+- **무중단 릴리스**: ALB **가중치 Blue/Green**(app) + **3개 서비스 롤링**(app/api/admin)
+- **멀티서비스 격리**: `app / api / admin` 경로 분리 → 독립 배포·장애 격리·확장 유연성
+- **자가복구·자동확장**: ALB/TG 헬스체크 + **TargetTracking**(CPU/MEM/Req/Target)로 Desired=Running 보장
+- **비용 최적화**: **Fargate + Fargate Spot 혼합**, **VPCE(S3/Logs)**로 NAT 데이터 절감, **ECR Lifecycle**·**AWS Budgets**로 낭비 최소화
+- **보안·거버넌스**: **OIDC 무시크릿 CI/CD**, **RDS 프라이빗**, **CloudFront OAI**, Secrets Manager 주입
+- **운영 가시성**: CloudWatch **Alarms/Logs**와 간단 **Runbook**으로 상태 관찰·조치 일원화
 
-## 레포 구조
 
-## 상세 문서 링크 모음
-  
+> 🔍 **본 레포는 “데모 전용”입니다.** 인프라는 상시 구동하지 않으며, 모든 증빙은 **Docs**에서 확인합니다.  
+> **Docs:** [./docs/README.md](./docs/README.md)
+
+---
+
+## 🔎 What’s Inside
+- **네트워킹:** 3AZ VPC, Public/Private Subnets, NAT(single|per-AZ 토글), **VPC Endpoints(S3/Logs)**
+- **엣지/라우팅:** ALB 경로 라우팅(`/api`, `/admin`), **CloudFront + OAI**(S3 정적)
+- **컨테이너:** **ECS Fargate** 3 서비스(app/api/admin), CloudWatch Logs
+- **데이터:** **RDS MySQL**(프라이빗, 파라미터 그룹), Secrets Manager 연동
+- **배포·운영:** GitHub Actions **OIDC** → ECR Build/Push → ECS **롤링** & **가중치 Blue/Green**
+- **가시성/안전장치:** CloudWatch **Alarms**(ALB/ECS/RDS), **App Auto Scaling**(CPU/MEM/Req/Target), **AWS Budgets**
+- **IaC:** Terraform v1.6+, AWS Provider 5.x
+
+---
+
+## 🗂️ Repository Layout
+```text
+.
+├─ main.tf
+├─ variables.tf
+├─ versions.tf
+├─ outputs.tf                
+├─ dev.tfvars
+├─ .gitignore
+├─ .github/
+│  └─ workflows/
+│     └─ deploy-to-ecs.yml    # OIDC 기반 빌드/푸시/롤링 배포
+├─ yourls/                    # Docker build context (YOURLS + NGINX + PHP-FPM)
+│  ├─ Dockerfile
+│  ├─ nginx.conf
+│  └─ entrypoint.sh
+├─ docs/                      # 증빙 문서
+│  └─ README.md
+└─ assets/                    # 다이어그램/이미지
+   └─ architecture.png
+```
+## 🧩 Architecture
+![architecture](./assets/architecture.png)
+
+- **경로 라우팅**: `/* → app`, `/api/* → api`, `/admin/* → admin`  
+- **가중치 Blue/Green**: `app_blue_weight` / `app_green_weight` 로 트래픽 분할  
+- **NAT 절감**: S3/Logs VPCE로 이미지/로그 트래픽을 **사설 경로**로 우회
+
+---
+
+## 🚀 Quick Start (Optional)
+> 기본 모드는 **데모 전용(무배포)** 입니다. 재현이 필요할 때만 실행하세요.
+```bash
+# IaC 준비
+terraform init
+terraform plan -var-file="dev.tfvars" -out=tfplan # 계획만 확인(비용 無)
+
+# (선택) 실제 배포 시
+# terraform apply tfplan
+
+# GitHub Actions(OIDC) 배포 흐름
+# CI/CD: main 브랜치 푸시 시 \ECR Push -> ECS 3개 서비스 롤링 -> services-stable 까지 자동 대기
+```
+## ✅ Demo / Verification Checklist
+모든 스크린샷과 상세 로그는 Docs에 정리:
+📄 ./docs/README.md
+ · 🔗 https://yourname.github.io/my-platform
+## ✅ Demo / Verification Checklist
+- [헬스체크 200 OK](./docs/results.md#proof-healthcheck)
+- [ECS 서비스 안정화(3개 서비스 정상)](./docs/results.md#proof-ecs-stable)
+- [ALB Target Groups & Target Health](./docs/results.md#proof-tg-health)
+- [Blue/Green 가중치(트래픽 분할)](./docs/results.md#proof-bluegreen-weights)
+- [CloudWatch Logs (그룹 & tail)](./docs/results.md#proof-logs-tail)
+- [RDS(MySQL) 설정 검증](./docs/results.md#proof-rds)
+- [VPC 엔드포인트(S3/CloudWatch)](./docs/results.md#proof-vpce)
+- [ECR 이미지 & Lifecycle](./docs/results.md#proof-ecr-lifecycle)
+- [CloudWatch Alarms 요약](./docs/results.md#proof-alarms)
+- [ECS 오토스케일(TargetTracking)](./docs/results.md#proof-autoscaling)
+- [Cost 가드레일 – AWS Budgets](./docs/results.md#proof-budgets)
+
+
+
+## 🛠️ Operations (Runbook Lite)
+
+## 💰 Cost & ⚖️ Security Notes
+- **NAT 절감**: nat_strategy(single|per_az) + S3/Logs VPC Endpoints
+- 이미지/스토리지 비용 관리: ECR Lifecycle(untagged 7일, 50개 유지)
+- 예산 가드레일: AWS Budgets 월 $20(예측/실사용 알림)
+- 보안 기본값: RDS 프라이빗, CloudFront OAI→S3 비공개, Secrets Manager → ECS Task secrets
+- CI/CD 시크릿 무노출: GitHub Actions OIDC 기반 AssumeRole
+
+## 🧪 Tech Stack
+
+Terraform · AWS(VPC, ALB, CloudFront, ECS Fargate, ECR, RDS MySQL, CloudWatch Logs/Alarms, App Auto Scaling, Budgets, Secrets Manager, VPCE) · GitHub Actions(OIDC) · NGINX + PHP-FPM
