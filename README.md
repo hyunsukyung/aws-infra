@@ -74,6 +74,7 @@ terraform plan -var-file="dev.tfvars" -out=tfplan # 계획만 확인(비용 無)
 📄 ./docs/results.md
  · 🔗 
 https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?usp=sharing
+- [Git -> CI/CD -> ECS 배포](https://docs.google.com/document/d/1Yt-mmegPSgOmOnRnar6i2-aZnijIX6uL78tCX0XyVu0/edit?tab=t.0#bookmark=id.eas2c4dos6cv)
 - [ALB & CloudFront 헬스체크 200 OK](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.wvb9282fcdnh)
 - [ECS 서비스 안정화(3개 서비스 정상)](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.aofduuee2joy)
 - [ALB Target Groups & Target Health](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.r9if9ikv8q4c)
@@ -149,4 +150,5 @@ Terraform · AWS(VPC, ALB, CloudFront, ECS Fargate, ECR, RDS MySQL, CloudWatch L
 
 ## 🙋 About Me
 클라우드 솔루션/인프라 직무를 지향합니다. 무중단 배포·비용 최적화·보안 기본값을 실무형으로 구현하고, 증빙을 데이터로 남기는 엔지니어입니다.
-문의: your.email@example.com · LinkedIn/GitHub 링크
+문의: gustnrud0602@naver.com
+
