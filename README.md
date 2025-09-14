@@ -1,6 +1,6 @@
 ## 🧭 YOURLS on AWS Fargate
 
-Terraform으로 **VPC + ALB + ECS(Fargate) + RDS(MySQL) + CloudFront + VPCE**를 구축하고, 컨테이너화한 **YOURLS**(단축 URL 서비스)를 고가용성·무중단 배포 아키텍처로 구현한 포트폴리오
+Terraform으로 **VPC + ALB + ECS(Fargate) + RDS(MySQL) + CloudFront + VPCE** 인프라를 구축하고, 컨테이너화한 **YOURLS**(단축 URL 서비스)를 고가용성·무중단 배포 아키텍처로 구현한 포트폴리오
 
 ---
 
@@ -75,7 +75,8 @@ terraform plan -var-file="dev.tfvars" -out=tfplan # 계획만 확인(비용 無)
 ## ✅ Demo / Verification Checklist
 모든 스크린샷과 상세 로그는 Docs에 정리:
 📄 ./docs/results.md
- · 🔗 https://docs.google.com/document/d/1xev0STyyOjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#heading=h.epcfztywsej0
+ · 🔗 
+https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?usp=sharing
 - [ALB & CloudFront 헬스체크 200 OK](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.wvb9282fcdnh)
 - [ECS 서비스 안정화(3개 서비스 정상)](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.aofduuee2joy)
 - [ALB Target Groups & Target Health](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.r9if9ikv8q4c)
