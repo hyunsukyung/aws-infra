@@ -47,12 +47,9 @@ https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/
 ├─ README.md
 ├─ docs/                      # 증빙 문서
 │  └─ results.md
-└─ assets/                    # 다이어그램/이미지
-   └─ architecture.png
+
 ```
 ## 🧩 Architecture
-![architecture](./assets/architecture.png)
-
 - **경로 라우팅**: `/* → app`, `/api/* → api`, `/admin/* → admin`  
 - **가중치 Blue/Green**: `app_blue_weight` / `app_green_weight` 로 트래픽 분할  
 - **NAT 절감**: S3/Logs VPCE로 이미지/로그 트래픽을 **사설 경로**로 우회
