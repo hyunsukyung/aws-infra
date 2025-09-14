@@ -75,6 +75,7 @@ terraform plan -var-file="dev.tfvars" -out=tfplan # 계획만 확인(비용 無)
  · 🔗 
 https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?usp=sharing
 - [Git -> CI/CD -> ECS 배포](https://docs.google.com/document/d/1Yt-mmegPSgOmOnRnar6i2-aZnijIX6uL78tCX0XyVu0/edit?tab=t.0#bookmark=id.eas2c4dos6cv)
+- [Terraform Outputs & State](https://docs.google.com/document/d/1HBcYslhm-OB8-yCBj7WndtYnx9wyrSxBere5GI9mjd8/edit?tab=t.0#bookmark=id.ywngrk3obmhq)
 - [ALB & CloudFront 헬스체크 200 OK](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.wvb9282fcdnh)
 - [ECS 서비스 안정화(3개 서비스 정상)](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.aofduuee2joy)
 - [ALB Target Groups & Target Health](https://docs.google.com/document/d/1xev0STyy-OjIsvBgFbZSdq8XSOYdh39qrZsXKlYBrbQ/edit?tab=t.0#bookmark=id.r9if9ikv8q4c)
